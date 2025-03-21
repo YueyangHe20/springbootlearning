@@ -7,7 +7,13 @@
     <!--bean标签表示配置bean
     id属性表示给bean起名字
     class属性表示给bean定义类型-->
-    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" scope="prototype"/>
+    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" scope="prototype"/><!--    方式一:构造方法实例化对象bean-->
+    <bean id="orderDao" class="com.itheima.factory.OrderDaoFactory" factory-method="getOrderDao"/><!--    方式二：使用静态工厂实例化bean-->
+    <!--方式三:使用实例化工厂实例化bean-->
+<!--    <bean id="userFactory" class="com.itheima.factory.UserDaoFactory"/>
+    <bean id="userDao" factory-bean="userFactory" factory-method="getUserDao"/>-->
+
+    <bean id="userDao" class="com.itheima.factory.UserDaoFactoryBean"/><!--    方式四:使用FactoryBean实例化bean-->
     <bean id="bookService" name="bookService2 RE" class="com.itheima.service.impl.BookServiceImpl">
 <!--    7.配置service于dao的关系-->
         <!--property标签表示的配置bean的属性

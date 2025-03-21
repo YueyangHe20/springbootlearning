@@ -237,6 +237,75 @@ prototype:非单例
 封装实体的域对象
 * */
 
-/*bean的实例化过程(bean是如何创建的 实例化bean的三种方式)
+/*bean的实例化（一）构造方法(bean是如何创建的 实例化bean的三种方式)
 *
+*bean的本质上就是对象，创建bean使用构造方法完成
+*调用的是无参的构造方法
+*
+提供可访问的构造方法
+//    //可以用private访问
+//    private BookDaoImpl() {
+//        System.out.println("book DAo construtor is running...");
+//    }
+
+    @Override
+    public void save() {
+        System.out.println("Book DAO save ...");
+    }
+
+配置
+<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" scope="prototype"/>
+P.S.配置无任何变化
+无参构构造方法不存在，将抛出异常BeanCreationEception
+* */
+
+/*实例化bean的三种方式(二)静态工厂(了解)
+* 静态工厂
+public class OrderDaoFactory {
+    public static OrderDao getOrderDao() {
+        return new OrderDaoImpl();
+    }
+}
+* 配置
+ <bean id="orderDao" class="com.itheima.factory.OrderDaoFactory" factory-method="getOrderDao"/>
+* */
+
+/*实例化bean的三种方式(三)实例工厂(了解)
+*
+实例工厂
+public class UserDaoFactory {
+    public UserDao getUserDao() {
+        return new UserDaoImpl();
+    }
+}
+
+配置
+<!--方式三:使用实例化工厂实例化bean-->
+    <bean id="userFactory" class="com.itheima.factory.UserDaoFactory"/>
+    <bean id="userDao" factory-bean="userFactory" factory-method="getUserDao"/>
+* */
+
+/*实例化bean的第四种方式(FactoryBean)
+*
+FactoryBean
+public class UserDaoFactoryBean implements FactoryBean<UserDao> {
+    //代替原始实例工厂中创建对象的方法
+    @Override
+    public UserDao getObject() throws Exception {
+        return new UserDaoImpl();
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return UserDao.class;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return FactoryBean.super.isSingleton();
+    }
+}
+
+配置
+ <bean id="userDao" class="com.itheima.factory.UserDaoFactoryBean"/><!--    方式四:使用FactoryBean实例化bean-->
 * */
