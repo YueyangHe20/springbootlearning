@@ -152,10 +152,47 @@ Spring project(Spring 全家桶官网https://spring.io/projects)
 * 3.被管理的对象交给IOC容器，如何获取到IoC容器?(接口)
 * 4.IoC容器得到后，如何从容器中获取bean?(接口方法)
 * 5.使用Spring导入哪些坐标?(pom.xml)
+*
+* IOC入门案例
+* 0.applicationContect.xml文件配置完成
+* <!--1.导入spring的坐标spring-context，对应版本6.0.0-->
+  <!--2.配置bean-->
+  <!--bean标签表示配置bean
+    id属性表示给bean起名字
+    class属性表示给bean定义类型-->
+    3.获取IOC容器
+    ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+    4.获取bean
+        BookDao bookDao=(BookDao) context.getBean("bookDao");
+        bookDao.save();
+        BookService bookService=(BookService) context.getBean("bookService");
+        bookService.save();
 *  */
 
 /*DI 入门案例
 *
+* DI入门案例思路分析
+* 1.基于IOC管理bean
+* 2.Service中使用new形式创建的Dao对象是否保留?(否)原因：有了实现类必定耦合度高<内容浦和：一个模块直接调用另一个模块内的属性 >
+* 3.Service中需要的Dao对象如何进入到Service中?(提供方法)
+* 4.Service与Dao间的关系如何描述?(配置)
+*
+* DI入门案例
+* //5.删除业务层中使用new的方式创建的dao对象
+    //private BookDao bookDao = new BookDaoImpl();
+    private BookDao bookDao;
+*  //6.提供对应的set方法
+    public void setBookDao(BookDao bookDao) {
+        this.bookDao = bookDao;
+    }
+ * 在applicationContext.xml中完成配置哦
+ * <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+        <!--    7.配置service于dao的关系-->
+        <!--property标签表示的配置bean的属性
+        name属性表示配置哪一个具体的属性<理解为setBookDao>
+        ref属性表示参照哪一个bean<理解为bean的关系>-->
+    <property name="bookDao" ref="bookDao"/>
+    </bean>
 * */
 
 /*bean 基础配置
