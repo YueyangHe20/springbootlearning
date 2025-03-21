@@ -7,7 +7,7 @@
     <!--bean标签表示配置bean
     id属性表示给bean起名字
     class属性表示给bean定义类型-->
-    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl"/>
+    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" scope="prototype"/>
     <bean id="bookService" name="bookService2 RE" class="com.itheima.service.impl.BookServiceImpl">
 <!--    7.配置service于dao的关系-->
         <!--property标签表示的配置bean的属性

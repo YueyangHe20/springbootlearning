@@ -212,6 +212,29 @@ name:别名，在getbean的时候可以引用，推荐使用id，用空格(space
 <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
 </bean>
 *
+* 作用范围<是否是单例对象>
+bean的属性配置scope
+
+功能
+定义bean的作用范围，可选范围如下
+singleton:单例(默认)
+prototype:非单例
+
+示例
+<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" scope="prototype"/>
+
+为什么bean默认的是单例？
+单例是每次创建的对象是同一个
+非单例每次都会创建一个新对象，多次调用方法会生成多个对象，数据量过多
+
+适合交给容器进行管理的bean<多次复用的对象>
+表现层对象
+业务层对象
+数据层对象
+工具对象
+
+不适合交给容器进行管理的bean
+封装实体的域对象
 * */
 
 /**/
