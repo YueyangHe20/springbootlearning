@@ -195,7 +195,22 @@ Spring project(Spring 全家桶官网https://spring.io/projects)
     </bean>
 * */
 
-/*bean 基础配置
+/*bean 基础配置<bean基础配置 bean别名配置 bean作用范围配置>
+*
+* bean基础配置
+* 格式
+* <beans>
+    <bean>
+    </bean>
+</beans>
+*属性列表
+id:bean的id，使用容器可以通过id值获取对应的bean，在一个容器中id值唯一
+class:bean的类型，即配置的bean的全路径名称
+name:别名，在getbean的时候可以引用，推荐使用id，用空格(space)逗号(,)分号（;）
+*实例
+* <bean id="bookDao" name="bookService2 RE"  class="com.itheima.dao.impl.BookDaoImpl"/>
+<bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+</bean>
 *
 * */
 
