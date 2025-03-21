@@ -51,7 +51,7 @@ Spring project(Spring 全家桶官网https://spring.io/projects)
  * 6.Test:单元测试和集成测试
  * */
 
-/*Spring Core Co ntainer核心概念(IOC<Inversion of Control>控制反转，DI<dependency injection>依赖注入和bean)
+/*Spring Core Container核心概念(IOC<Inversion of Control>控制反转，DI<dependency injection>依赖注入和bean)
 *
 * IOC(Inversion of Control)控制反转
 *   使用对象睡觉哦，由主动呢哇产生对象转为由外部提供对象，此过程中对象创建控制权有程序内部转移到外部，此思想称为控制反转
