@@ -7,7 +7,7 @@
     <!--bean标签表示配置bean
     id属性表示给bean起名字
     class属性表示给bean定义类型-->
-    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" scope="prototype"/><!--    方式一:构造方法实例化对象bean-->
+    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" scope="singleton" init-method="init" destroy-method="destroy"/><!--    方式一:构造方法实例化对象bean-->
     <bean id="orderDao" class="com.itheima.factory.OrderDaoFactory" factory-method="getOrderDao"/><!--    方式二：使用静态工厂实例化bean-->
     <!--方式三:使用实例化工厂实例化bean-->
 <!--    <bean id="userFactory" class="com.itheima.factory.UserDaoFactory"/>

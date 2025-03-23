@@ -309,3 +309,179 @@ public class UserDaoFactoryBean implements FactoryBean<UserDao> {
 配置
  <bean id="userDao" class="com.itheima.factory.UserDaoFactoryBean"/><!--    方式四:使用FactoryBean实例化bean-->
 * */
+
+/*bean 的生命周期(配置和接口两种控制方式)
+* 生命周期:从创建到消亡的完整过程
+* bean生命周期:bean从创建到销毁的整体过程
+* bean的生命周期控制:在bean创建后到销毁前做一些事情
+*
+* 代码分析
+* @Override
+    public void save() {
+        System.out.println("Book DAO save ...");
+    }
+
+    //表示bean初始化的操作
+    public void init(){
+        System.out.println("Book DAO init ...");
+    }
+
+    //表示bean销毁前的操作
+    public void destroy(){
+        System.out.println("Book DAO destroy ...");
+    }
+    *
+    * applicationContect.xml的配置
+    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" scope="singleton" init-method="init" destroy-method="destroy"/>
+    输出结果:有初始化方法输出，无销毁方法输出
+    原因:java虚拟机执行完代码就关闭了
+    *
+    * 关闭的两种方法close()和registerShutDownHook
+    //ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        //销毁方法在ClassPathXmlApplication暴力关闭方法
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        BookDao bookDao = (BookDao) context.getBean("bookDao");
+        bookDao.save();
+        context.close();//可以与“context.registerShutdownHook();”替换，区别close暴力直接关闭，勾子可以放在任何地方
+    这两种实际开发中不太需要
+    *
+    * 使用接口控制BookServiceImpl为例子
+    public class BookServiceImpl implements BookService, DisposableBean, InitializingBean{
+    //5.删除业务层中使用new的方式创建的dao对象
+    //private BookDao bookDao = new BookDaoImpl();
+    private BookDao bookDao;
+
+    @Override
+    public void save() {
+        System.out.println("Book service save ...");
+        bookDao.save();
+    }
+    //6.提供对应的set方法
+    public void setBookDao(BookDao bookDao) {
+        this.bookDao = bookDao;
+    }
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("Book service destroy...");
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("Book service init...");
+    }
+    }
+使用了 DisposableBean, InitializingBean接口控制关闭和开启,需要重写destory()和afterPropertiesSet()方法
+afterPropertiesSet()是在类属性设置以后开始出初始化控制
+*
+* bean生命周期
+初始化容器
+ 1.创建对象
+ 2.执行构造方法
+ 3.执行属性注入(set操作)
+ 4.执行bean初始化方法
+使用bean
+1.执行业务操作
+关闭/销毁容器
+1.执行bean的销毁方法
+*
+* bean销毁时机
+容器关闭前触发bean的销毁
+
+关闭容器的方式
+手工关闭容器
+ConfigurableApplicationContext接口close()操作
+注册关闭钩子，在虚拟机退出前先关闭容器再退出虚拟机
+ConfigurableApplicationContext接口close()操作
+    * */
+
+/*依赖注入（两种方式）
+*
+思考:向一个类中传递数据的方式有几种？
+普通方法(set方法)
+构造方法
+
+思考:
+简单类型(基本数据类型与String)
+引用类型
+
+依赖注入方式
+setter注入(官方命名)
+简单类型
+引用类型
+构造器注入(官方命名)
+简单类型
+引用类型
+*
+JAVA四种引用类型:强引用，软引用，虚引用，弱引用
+
+ava设计这四种引用的主要目的有两个：
+可以让程序员通过代码的方式来决定某个对象的生命周期；
+有利用垃圾回收。
+
+JVM去负责Java的分配和内存回收,一个对象是否可以被回收，主要看是否有引用指向此对象.
+
+强引用
+强引用是最普遍的一种引用，我们写的代码，99.9%都是强引用,比如:
+Object o = new Object();
+只要某个对象有强引用与之关联，这个对象永远不会被回收，即使内存不足，JVM宁愿抛出OOM(内存溢出)，也不会去回收。
+P.S.
+-什么是内存溢出，什么是内存泄漏？
+-它代表业务代码执行时，所需要占用的内存空间。这段业务代码中创建了两个1M的对象，一起会占用2M内存。当对象使用完之后，
+-这两个对象并没有释放，因此内存中会留下2M的内存空间一直被占用。而我们的业务代码在程序中会被反复执行，每次执行都
+-会留下2M不被释放，反复执行多次之后，随着时间的累积，就会有大量的对象用完不被释放，导致这些对象不能得到回收而发
+-生内存溢出，这种情况就叫做内存泄漏。
+-也就说，在我们的业务代码执行过程中，有些对象它应该被回收，但是又有其他对象引用引用它，因此，GC不能自动回收。所
+-以，该回收的垃圾对象没有被回收，垃圾对象越堆越多，可用内存越来越少，若可用内存无法存放新的垃圾对象，最终导致内存
+-泄漏。内存泄漏最终会导致内存溢出。
+
+软引用
+创建一个软引用:
+SoftReference<Student> studentSoftReference= new SoftReference<Student>(new Student());
+软引用就是把对象用SoftReference包裹一下，当我们需要从软引用对象获得包裹的对象，只要get一下就可以了：
+SoftReference<Student> studentSoftReference= new SoftReference<Student>(new Student());
+Student student = studentSoftReference.get();
+System.out.println(student);
+软引用的特点：
+当内存不足，会触发JVM的GC，如果GC后，内存还是不足，就会把软引用的包裹的对象给干掉，也就是只有在内存不足，JVM才会回收该对象。
+软引用的用处:
+比较适合用作缓存，当内存足够，可以正常的拿到缓存，当内存不够，就会先干掉缓存，不至于马上抛出OOM。
+
+弱引用
+弱引用的使用和软引用类似，只是关键字变成了WeakReference
+WeakReference<byte[]> weakReference = new WeakReference<byte[]>(new byte[1024\*1024\*10]);
+System.out.println(weakReference.get());
+弱引用的特点是不管内存是否足够，只要发生GC，都会被回收;
+弱引用在很多地方都有用到，比如ThreadLocal、WeakHashMap。
+
+虚引用
+虚引用又被称为幻影引用,我们来看看它的使用:
+ReferenceQueue queue = new ReferenceQueue();
+PhantomReference<byte[]> reference = new PhantomReference<byte[]>(new byte[1], queue);
+System.out.println(reference.get());
+虚引用的使用和上面说的软引用、弱引用的区别还是挺大的,它的特点1.无法来获取对一个对象的真实引用。2.引用必须与
+ReferenceQueue一起使用，当GC准备回收一个对象，如果发现它还有虚引用，就会在回收之前，把这个虚引用加入到与之关联的ReferenceQueue中。
+虚引用存在的意义:
+创建虚引用对象，我们除了把包裹的对象传了进去，还传了一个ReferenceQueue(一个队列).
+当发生GC，虚引用就会被回收，并且会把回收的通知放到ReferenceQueue中
+虚引用有什么用:
+在NIO(多路复用模式)中，就运用了虚引用管理堆外内存.
+*
+setter注入-引用类型
+在bean中定义引用类型属性并提供可访问的set方法
+//5.删除业务层中使用new的方式创建的dao对象
+    //private BookDao bookDao = new BookDaoImpl();
+    private BookDao bookDao;
+    public void setBookDao(BookDao bookDao) {
+        this.bookDao = bookDao;
+    }
+在配置中使用property标签属性ref属性注入引用类型对象
+<bean id="bookService" name="bookService2 RE" class="com.itheima.service.impl.BookServiceImpl">
+<!--    7.配置service于dao的关系-->
+        <!--property标签表示的配置bean的属性
+        name属性表示配置哪一个具体的属性<理解为setBookDao>
+        ref属性表示参照哪一个bean<理解为bean的关系>-->
+    <property name="bookDao" ref="bookDao"/>
+</bean>
+
+<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" scope="singleton" init-method="init" destroy-method="destroy"/>
+*/
