@@ -482,6 +482,181 @@ setter注入-引用类型
         ref属性表示参照哪一个bean<理解为bean的关系>-->
     <property name="bookDao" ref="bookDao"/>
 </bean>
-
 <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" scope="singleton" init-method="init" destroy-method="destroy"/>
+*
+setter注入-简单类型
+在bean中定义引用类型属性并提供可访问的set方法
+
+在配置中使用property标签value属性注入简单数据类型
+
 */
+
+/*
+构造方法注入-引用注入
+BookService类中的代码(未测试代码仅学习理解用)
+public class BookServiceImpl implements BookService{
+private BookDao bookDao;
+private UserDao userDao;
+//构造器
+public BookServiceImpl(BookDao bookDao1,UserDao userDao1){
+this.bookDao=bookDao1;
+this.userDao=UserDao1;
+//为了理解配置文件中name在构造器注入中和之前不同
+}
+}
+applicationContect.xml配置
+<bean id="bookService" name="bookService2 RE" class="com.itheima.service.impl.BookServiceImpl">
+        <constructor-arg name="bookDao1" ref="bookDao"><!-形参与构造器注入名字相同，耦合度较高->
+        <constructor-arg name="userDao1" ref="userDao"><!-形参与构造器注入名字相同，耦合度较高->
+</bean>
+*
+构造方法注入-简单注入
+BookService类中的代码(未测试代码仅学习理解用)
+public class BookServiceImpl implements BookService{
+private String databaseName;
+private int connectNum;
+//构造器
+public BookServiceImpl(String databaseName,int connectNum){
+this.databaseName=databaseName;
+this.connectNum=connectNum;
+//为了理解配置文件中name在构造器注入中和之前不同
+}
+}
+applicationContect.xml配置
+<bean id="bookService" name="bookService2 RE" class="com.itheima.service.impl.BookServiceImpl">
+        <constructor-arg name="databaseName" value="mysql"><!-形参与构造器注入名字相同，耦合度较高->
+        <constructor-arg name="connectNum" value="1000"><!-形参与构造器注入名字相同，耦合度较高->
+</bean>
+***构造器改输入名字bean也要改，耦合度极高
+*解决方案(applicationContect.xml配置)
+<bean id="bookService" name="bookService2 RE" class="com.itheima.service.impl.BookServiceImpl">
+        <constructor-arg type="java.lang.String" value="mysql"><!-形参与构造器注入名字相同，耦合度较高->
+        <constructor-arg type="int" value="1000"><!-形参与构造器注入名字相同，耦合度较高->
+</bean>
+*存在问题有两个String会有冲突，解决形参名称问题，上述方法解决了形参耦合问题
+*解决方案
+<bean id="bookService" name="bookService2 RE" class="com.itheima.service.impl.BookServiceImpl">
+        <constructor-arg type="java.lang.String" index="0" value="mysql"><!-形参与构造器注入名字相同，耦合度较高->
+        <constructor-arg type="java.lang.String" index="1" value="1000"><!-形参与构造器注入名字相同，耦合度较高->
+</bean>
+*依靠位置index解决问题
+ */
+
+/*依赖注入方式选择
+* 1.强制依赖使用构造器进行,使用setter注入有概率不进行注入导致null对象出现
+* 2.可选依赖使用setter注入进行，灵活性强
+* 3.Spring框架倡导使用构造器，第三方框架大多数采用构造器注入的形式进行数据初始化，相对严谨
+* 4.如果有必要可以两者同时使用，使用构造器注入完成强制依赖的注入，使用setter注入完成可选依赖的注入
+* 5.实际开发过程中还需要更根据实际情况分析，如果受控对象没有提供setter方法就必须使用构造器注入
+* 6.自己开发的模块推荐使用setter注入
+* */
+
+/*依赖自动装配
+*IOC容器更具bean所依赖的资源在容器中自动查找并注入到bean中的过程称为自动装配
+*
+*自动装配的方式
+* 按类型(常用)
+* 按名称
+* 按构造方法
+* 不启动自动装配
+*
+* 自动装配代码
+* BookServiceImpl类
+public class BookServiceImpl implements BookService{
+private BookDao bookDao;
+public void setBookDao(BookDao bookDao) {
+        this.bookDao = bookDao;
+}
+* applicationContect.xml配置
+<bean id="bookService" name="bookService2 RE" class="com.itheima.service.impl.BookServiceImpl" autowire="byType"/>
+ 与上面的区别直接封口，用autowire属性指定方法，set方法一定不能缺，防止映射不成功，符合IOC思想
+*
+*依赖自动装配特征
+* 自动装配用于引用类型依赖注入，不能对简单类型进行操作
+* 使用按类型装配时(byType)必须保障容器中相同类型的bean唯一，推荐使用
+* 使用按名称装配时(byName)必须保障容器中具有指定不成的bean,因变量名与配置耦合，不推荐使用
+* 自动装配优先级低于setter注入和构造器注入，同时出现时自动装配失效
+*  */
+
+/*集合注入
+* 数组
+* List
+* Set
+* Map
+* Properties
+* 代码注释
+*   <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" scope="singleton" init-method="init" destroy-method="destroy"><!--    方式一:构造方法实例化对象bean-->
+        <property name="databaseName" value="mysql"/>
+        <property name="connectionNum" value="100"/>
+        <property name="array">
+            <array>
+                <value>100</value>
+                <value>200</value>
+                <value>300</value>
+            </array>
+        </property>
+        <property name="bookList">
+            <list>
+                <value>100</value>
+                <value>200</value>
+                <value>300</value>
+            </list>
+        </property>
+        <property name="set">
+            <set>
+                <value>100</value>
+                <value>200</value>
+                <value>300</value>
+            </set>
+        </property>
+        <property name="map">
+            <map>
+                <entry key="1" value="1"/>
+                <entry key="2" value="2"/>
+                <entry key="3" value="3"/>
+            </map>
+        </property>
+        <property name="properties">
+            <props>
+                <prop key="1">1</prop>
+                <prop key="2">2</prop>
+                <prop key="3">3</prop>
+            </props>
+        </property>
+    </bean>
+*   */
+
+/*加载property文件
+* xml代码
+* 1.开启context命名空间
+* <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+"
+>
+* 添加的代码三行:
+* xmlns:context="http://www.springframework.org/schema/context"
+* http://www.springframework.org/schema/context
+* http://www.springframework.org/schema/context/spring-context.xsd
+* 2.使用context命名空间，加载指定properties文件
+* <context:property-placeholder location="jdbc.properties">
+*3.使用${}读取加载的属性值
+* <property name="username" value="${jdbc.username}">
+*
+* 加载properties文件的5种情况
+* 1.不加载系统属性
+* <context:property-placeholder location="jdbc.properties" system-properties-never="Never"/>
+* 2.加载多个properties文件
+* <context:property-placeholder location="jdbc.properties,msg.properties"/>
+* 3.加载所有properties文件
+* <context:property-placeholder location="jdbc.properties"/>
+* 4.加载properties文件标准格式
+* <context:property-placeholder location="classpath:*.properties"/>
+* 5.从类路径或jar包中搜索并加载properties文件
+* <context:property-placeholder location="classpath*:*.properties"/>
+* */
